@@ -7,14 +7,12 @@ async function listUsers(req: Request, res: Response) {
   const { search } = req.query;
   try {
     const users = await prisma.user.findMany({
-      where: { name: { contains: search as string } },
+      where: { name: { contains: search as string } },orderBy:{name:"asc"}
     });
     const count = await prisma.user.count({
       where: { name: { contains: search as string } },
     });
 
-    const average = await prisma.user.aggregate({_avg:{id:true},_count:{_all:true},_sum:{id:true}});
-    console.log(average)
     res.status(200).json({ users, count });
   } catch (error: any) {
     res.status(400).json({ message: error.message });
@@ -56,7 +54,24 @@ async function updateUsers(req: Request, res: Response) {
 
   } catch (error: any) {
     if(error.meta.cause==="Record to update not found."){
-      res.status(400).json({ message: "Usuário não encontrado" });
+      return res.status(400).json({ message: "Usuário não encontrado" });
+    }
+    res.status(400).json({ message: error.message });
+  }
+}
+
+async function deleteUser(req: Request, res: Response) {
+  const { id } = req.params;
+  try {
+    const user = await prisma.user.delete({
+      where: {
+        id: Number(id),
+      },
+    });
+    res.status(200).json(user);
+  } catch (error:any) {
+    if(error.meta.cause==="Record to delete does not exist."){
+      return res.status(400).json({ message: "Usuário não encontrado" });
     }
     res.status(400).json({ message: error.message });
   }
@@ -64,5 +79,5 @@ async function updateUsers(req: Request, res: Response) {
 
 
 export{
-  listUsers,createUsers,updateUsers
+  listUsers,createUsers,updateUsers,deleteUser
 }
