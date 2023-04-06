@@ -1,11 +1,17 @@
 import { Router } from 'express';
+import { tokenVerify } from '../middlewares/tokenValidation';
 import suppliersRoutes from './suppliers';
 import userRoutes from './users';
+import { createUsers, login } from '../controllers/users';
 
 const routes = Router();
 
-routes.use('/users', userRoutes);
+routes.post('/login',login)
+routes.post('/signup',createUsers)
 
+routes.use(tokenVerify);
+
+routes.use('/users', userRoutes);
 routes.use(`/supplier`, suppliersRoutes);
 
 // routes.get('/feed', async (req, res) => {
