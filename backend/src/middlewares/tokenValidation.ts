@@ -38,7 +38,6 @@ async function tokenVerify(req: Request, res: Response, next: NextFunction) {
     req.cookies.user = user;
     next();
   } catch (error: any) {
-    console.log(error);
     if (error.name === 'TokenExpiredError') {
       return res.status(401).json({
         message: 'Token expirado, por favor refaça sua requisição ou login.',

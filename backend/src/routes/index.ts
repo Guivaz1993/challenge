@@ -1,18 +1,20 @@
 import { Router } from 'express';
 import { tokenVerify } from '../middlewares/tokenValidation';
-import suppliersRoutes from './suppliers';
 import userRoutes from './users';
+import suppliersRoutes from './suppliers';
+import userSuppliersRoutes from './userSuppliers';
 import { createUsers, login } from '../controllers/users';
 
 const routes = Router();
 
-routes.post('/login',login)
-routes.post('/signup',createUsers)
+routes.post('/login', login);
+routes.post('/signup', createUsers);
 
 routes.use(tokenVerify);
 
 routes.use('/users', userRoutes);
 routes.use(`/supplier`, suppliersRoutes);
+routes.use(`/usersupplier`, userSuppliersRoutes);
 
 // routes.get('/feed', async (req, res) => {
 //   const { searchString, skip, take, orderBy } = req.query
