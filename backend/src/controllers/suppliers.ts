@@ -21,9 +21,9 @@ async function createSupplier(req: Request, res: Response) {
     const result = await prisma.supplier.create({
       data: { logo, name, state, cost, minimumLimit },
     });
-    res.status(201).json(result);
+    return res.status(201).json(result);
   } catch (error: any) {
-    res.status(400).json({ message: error.message });
+    return res.status(400).json({ message: error.message });
   }
 }
 
@@ -44,55 +44,51 @@ async function listSuppliers(req: Request, res: Response) {
         state: true,
         minimumLimit: true,
         cost: true,
-        // userSupplier: { select: { rating: true, isActive: true } },
+        userSupplier: { select: { rating: true, isActive: true } },
         _count: true,
       },
     });
 
-    const averageList = await prisma.userSupplier.groupBy({
-      by: ['supplierId'],
-      _avg: { rating: true },
-    });
+    // const averageList = await prisma.userSupplier.groupBy({
+    //   by: ['supplierId'],
+    //   _avg: { rating: true },
+    // });
 
-    const countList = await prisma.userSupplier.groupBy({
-      by:["supplierId"],
-      where:{isActive:true},
-      _count:true,
-    });
+    // const countList = await prisma.userSupplier.groupBy({
+    //   by:["supplierId"],
+    //   where:{isActive:true},
+    //   _count:true,
+    // });
 
     const responseList = list.map((supplier) => {
-      const average = averageList.find((iten) => iten.supplierId === supplier.id);
-      const countActive = countList.find((iten) => iten.supplierId === supplier.id);
+      // const average = averageList.find((iten) => iten.supplierId === supplier.id);
+      // const countActive = countList.find((iten) => iten.supplierId === supplier.id);
 
-      // const sum = supplier.userSupplier.reduce(function (
-      //   acumulador,
-      //   valorAtual,
-      // ) {
-      //   return acumulador + (valorAtual.rating || 0);
-      // },
-      // 0);
+      const sum = supplier.userSupplier.reduce(function (currentValue, value) {
+        return currentValue + (value.rating || 0);
+      }, 0);
 
-      // const activeUser = supplier.userSupplier.reduce(function (
-      //   acumulador,
-      //   valorAtual,
-      // ) {
-      //   return acumulador + (valorAtual.isActive ? 1 : 0);
-      // },
-      // 0);
+      const activeUser = supplier.userSupplier.reduce(function (
+        currentValue,
+        value
+      ) {
+        return currentValue + (value.isActive ? 1 : 0);
+      },
+      0);
 
       const supplierData = Object.assign({}, supplier, {
-        avg: average?._avg.rating || 0,
-        activeUser: countActive?._count || 0,
-        // avg: sum / supplier.userSupplier.length,
-        // activeUser,
+        // avg: average?._avg.rating || 0,
+        // activeUser: countActive?._count || 0,
+        avg: sum / supplier.userSupplier.length,
+        activeUser,
       });
 
       return supplierData;
     });
 
-    res.status(200).json(responseList);
+    return res.status(200).json(responseList);
   } catch (error: any) {
-    res.status(400).json({ message: error.message });
+    return res.status(400).json({ message: error.message });
   }
 }
 
@@ -113,9 +109,9 @@ async function getSupplier(req: Request, res: Response) {
       return res.status(404).json({ message: 'Fornecedor não encontrado' });
     }
 
-    res.status(200).json(supplier);
+    return res.status(200).json(supplier);
   } catch (error: any) {
-    res.status(400).json({ message: error.message });
+    return res.status(400).json({ message: error.message });
   }
 }
 
@@ -134,12 +130,12 @@ async function updateSupplier(req: Request, res: Response) {
       data: { logo, name, state, cost, minimumLimit },
     });
 
-    res.status(200).json(updatedSupplier);
+    return res.status(200).json(updatedSupplier);
   } catch (error: any) {
     if (error.meta.cause === 'Record to update not found.') {
       return res.status(400).json({ message: 'Fornecedor não encontrado' });
     }
-    res.status(400).json({ message: error.message });
+    return res.status(400).json({ message: error.message });
   }
 }
 
@@ -157,12 +153,12 @@ async function deleteSupplier(req: Request, res: Response) {
         id: Number(id),
       },
     });
-    res.status(200).json(supplier);
+    return res.status(200).json(supplier);
   } catch (error: any) {
     if (error.meta.cause === 'Record to delete does not exist.') {
       return res.status(400).json({ message: 'Fornecedor não encontrado' });
     }
-    res.status(400).json({ message: error.message });
+    return res.status(400).json({ message: error.message });
   }
 }
 

@@ -7,7 +7,6 @@ const prisma = new PrismaClient();
 
 async function listUsers(req: Request, res: Response) {
   const { search } = req.query;
-  console.log(req.cookies.user);
   try {
     const users = await prisma.user.findMany({
       where: { name: { contains: search as string } },
@@ -18,7 +17,7 @@ async function listUsers(req: Request, res: Response) {
         email: true,
         createdAt: true,
         updatedAt: true,
-        userSupplier:true,
+        userSupplier: true,
       },
     });
 
@@ -26,9 +25,9 @@ async function listUsers(req: Request, res: Response) {
       where: { name: { contains: search as string } },
     });
 
-    res.status(200).json({ users, count });
+    return res.status(200).json({ users, count });
   } catch (error: any) {
-    res.status(400).json({ message: error.message });
+    return res.status(400).json({ message: error.message });
   }
 }
 
@@ -52,9 +51,9 @@ async function createUsers(req: Request, res: Response) {
     const result = await prisma.user.create({
       data: { email, name, password: encryptedPass },
     });
-    res.status(201).json(result);
+    return res.status(201).json(result);
   } catch (error: any) {
-    res.status(400).json({ message: error.message });
+    return res.status(400).json({ message: error.message });
   }
 }
 
@@ -67,12 +66,12 @@ async function updateUsers(req: Request, res: Response) {
       data: { email, name, password },
     });
 
-    res.status(200).json(updatedUser);
+    return res.status(200).json(updatedUser);
   } catch (error: any) {
     if (error.meta.cause === 'Record to update not found.') {
       return res.status(400).json({ message: 'Usuário não encontrado' });
     }
-    res.status(400).json({ message: error.message });
+    return res.status(400).json({ message: error.message });
   }
 }
 
@@ -84,12 +83,12 @@ async function deleteUser(req: Request, res: Response) {
         id: Number(id),
       },
     });
-    res.status(200).json(user);
+    return res.status(200).json(user);
   } catch (error: any) {
     if (error.meta.cause === 'Record to delete does not exist.') {
       return res.status(400).json({ message: 'Usuário não encontrado' });
     }
-    res.status(400).json({ message: error.message });
+    return res.status(400).json({ message: error.message });
   }
 }
 
