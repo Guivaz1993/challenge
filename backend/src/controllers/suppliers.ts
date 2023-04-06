@@ -29,20 +29,62 @@ async function createSupplier(req: Request, res: Response) {
 
 async function listSuppliers(req: Request, res: Response) {
   try {
-    const list = await prisma.supplier.findMany({ orderBy: { name: 'asc' } });
+    const list = await prisma.supplier.findMany({
+      orderBy: { name: 'asc' },
+      //   include: {
+      //     _count: {
+      //       select: { userSupplier:true },
+      //     },
+      //     userSupplier: { select: { rating: true } },
+      //   },
+      // }
+      select: {
+        id: true,
+        name: true,
+        state: true,
+        minimumLimit: true,
+        cost: true,
+        // userSupplier: { select: { rating: true, isActive: true } },
+        _count: true,
+      },
+    });
 
     const averageList = await prisma.userSupplier.groupBy({
       by: ['supplierId'],
       _avg: { rating: true },
-      _count: { _all: true },
+    });
+
+    const countList = await prisma.userSupplier.groupBy({
+      by:["supplierId"],
+      where:{isActive:true},
+      _count:true,
     });
 
     const responseList = list.map((supplier) => {
-      const data = averageList.find((iten) => iten.supplierId === supplier.id);
+      const average = averageList.find((iten) => iten.supplierId === supplier.id);
+      const countActive = countList.find((iten) => iten.supplierId === supplier.id);
+
+      // const sum = supplier.userSupplier.reduce(function (
+      //   acumulador,
+      //   valorAtual,
+      // ) {
+      //   return acumulador + (valorAtual.rating || 0);
+      // },
+      // 0);
+
+      // const activeUser = supplier.userSupplier.reduce(function (
+      //   acumulador,
+      //   valorAtual,
+      // ) {
+      //   return acumulador + (valorAtual.isActive ? 1 : 0);
+      // },
+      // 0);
 
       const supplierData = Object.assign({}, supplier, {
-        count: data?._count._all || 0,
-        avg: data?._avg.rating || 0,
+        avg: average?._avg.rating || 0,
+        activeUser: countActive?._count || 0,
+        // avg: sum / supplier.userSupplier.length,
+        // activeUser,
       });
 
       return supplierData;

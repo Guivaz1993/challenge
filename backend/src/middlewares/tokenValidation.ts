@@ -4,7 +4,12 @@ import jwt from 'jsonwebtoken';
 
 const prisma = new PrismaClient();
 
-const jwtSecret = process.env.JWT_SECRET||'Token123';
+const jwtSecret = process.env.JWT_SECRET || 'Token123';
+
+interface TokenPayload {
+  id: string;
+  email: string;
+}
 
 async function tokenVerify(req: Request, res: Response, next: NextFunction) {
   const { authorization } = req.headers;
@@ -18,9 +23,11 @@ async function tokenVerify(req: Request, res: Response, next: NextFunction) {
   try {
     const token = authorization.replace('Bearer ', '').trim();
 
-    const { id } = jwt.verify(token, jwtSecret);
+    const { id } = jwt.verify(token, jwtSecret) as TokenPayload;
 
-    const userExists = await prisma.user.findUnique({ where: { id } });
+    const userExists = await prisma.user.findUnique({
+      where: { id: Number(id) },
+    });
 
     if (!userExists) {
       return res.status(404).json({ message: 'Usuário não encontrado' });

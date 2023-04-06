@@ -7,12 +7,21 @@ const prisma = new PrismaClient();
 
 async function listUsers(req: Request, res: Response) {
   const { search } = req.query;
-  console.log(req.cookies.user)
+  console.log(req.cookies.user);
   try {
     const users = await prisma.user.findMany({
       where: { name: { contains: search as string } },
       orderBy: { name: 'asc' },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        createdAt: true,
+        updatedAt: true,
+        userSupplier:true,
+      },
     });
+
     const count = await prisma.user.count({
       where: { name: { contains: search as string } },
     });
@@ -115,4 +124,4 @@ async function login(req: Request, res: Response) {
   }
 }
 
-export { listUsers, createUsers, updateUsers, deleteUser,login };
+export { listUsers, createUsers, updateUsers, deleteUser, login };
