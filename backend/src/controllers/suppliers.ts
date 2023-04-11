@@ -29,7 +29,10 @@ async function createSupplier(req: Request, res: Response) {
 
 async function listSuppliers(req: Request, res: Response) {
   try {
+    const { value = 0 } = req.query;
+
     const list = await prisma.supplier.findMany({
+      where: { minimumLimit: { lte: Number(value) } },
       orderBy: { name: 'asc' },
       select: {
         id: true,
