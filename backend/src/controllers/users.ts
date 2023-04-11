@@ -119,6 +119,9 @@ async function login(req: Request, res: Response) {
       token,
     });
   } catch (error: any) {
+    if(error.message==="No User found"){
+      return res.status(400).json({ message: 'Email e/ou senha incorretos.' });
+    }
     return res.status(400).json({ message: error.message });
   }
 }

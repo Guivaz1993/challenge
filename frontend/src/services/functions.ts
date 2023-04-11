@@ -1,7 +1,7 @@
 import { toast } from "react-toastify";
 import api from "./api";
 
-async function get(resource:string, token:string) {
+async function get(resource:string, token?:string) {
   try {
     const response = await api.get(resource, {
       headers: {
@@ -14,7 +14,7 @@ async function get(resource:string, token:string) {
   }
 }
 
-async function post(resource:string, data:{}, token:string) {
+async function post(resource:string, data:{}, token?:string) {
   try {
     const response = await api.post(resource, data, {
       headers: {
@@ -28,7 +28,7 @@ async function post(resource:string, data:{}, token:string) {
   }
 }
 
-async function patch(resource:string, data:{}, token:string) {
+async function patch(resource:string, data:{}, token?:string) {
   try {
     const response = await api.patch(resource, data, {
       headers: {
@@ -42,7 +42,7 @@ async function patch(resource:string, data:{}, token:string) {
   }
 }
 
-async function remove(resource:string, token:string) {
+async function remove(resource:string, token?:string) {
   try {
     const response = await api.delete(resource, {
       headers: {

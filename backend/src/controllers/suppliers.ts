@@ -31,13 +31,6 @@ async function listSuppliers(req: Request, res: Response) {
   try {
     const list = await prisma.supplier.findMany({
       orderBy: { name: 'asc' },
-      //   include: {
-      //     _count: {
-      //       select: { userSupplier:true },
-      //     },
-      //     userSupplier: { select: { rating: true } },
-      //   },
-      // }
       select: {
         id: true,
         name: true,
@@ -48,17 +41,6 @@ async function listSuppliers(req: Request, res: Response) {
         _count: true,
       },
     });
-
-    // const averageList = await prisma.userSupplier.groupBy({
-    //   by: ['supplierId'],
-    //   _avg: { rating: true },
-    // });
-
-    // const countList = await prisma.userSupplier.groupBy({
-    //   by:["supplierId"],
-    //   where:{isActive:true},
-    //   _count:true,
-    // });
 
     const responseList = list.map((supplier) => {
       // const average = averageList.find((iten) => iten.supplierId === supplier.id);
@@ -77,8 +59,6 @@ async function listSuppliers(req: Request, res: Response) {
       0);
 
       const supplierData = Object.assign({}, supplier, {
-        // avg: average?._avg.rating || 0,
-        // activeUser: countActive?._count || 0,
         avg: sum / supplier.userSupplier.length,
         activeUser,
       });
